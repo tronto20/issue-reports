@@ -19,12 +19,15 @@ repositories {
 
 dependencies {
     val kotlinVersion = property("kotlin.version")
-    val springBootVersion = property("spring.boot.version")
     val kotlinterVersion = property("kotlinter.version")
+    val springBootVersion = property("spring.boot.version")
+    val graalvmBuildToolsVersion = property("graalvm.native.tools.version")
 
     implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
     implementation("org.jmailen.gradle:kotlinter-gradle:$kotlinterVersion")
-    implementation("org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion")
+    // 둘은 동시에 적용해야 함.
+//    implementation("org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion")
+//    implementation("org.graalvm.buildtools.native:org.graalvm.buildtools.native.gradle.plugin:$graalvmBuildToolsVersion")
 }
 
 gradlePlugin {
@@ -35,3 +38,5 @@ gradlePlugin {
         }
     }
 }
+
+

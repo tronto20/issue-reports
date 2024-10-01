@@ -3,6 +3,7 @@ pluginManagement {
 
     val kotlinVersion = property("kotlin.version")
     val springBootVersion = property("spring.boot.version")
+    val graalvmBuildToolsVersion = property("graalvm.native.tools.version")
 
     repositories {
         mavenCentral()
@@ -13,6 +14,7 @@ pluginManagement {
         kotlin("plugin.spring") version kotlinVersion
         kotlin("plugin.serialization") version kotlinVersion
         id("org.springframework.boot") version springBootVersion
+        id("org.graalvm.buildtools.native") version graalvmBuildToolsVersion
     }
 }
 
@@ -23,4 +25,7 @@ plugins {
 rootProject.name = "issue-reports"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 include(":dependencies")
-include(":ep-1")
+include(
+    ":ep-1",
+    ":ep-2",
+)
