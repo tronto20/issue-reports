@@ -4,6 +4,7 @@ plugins {
     kotlin("jvm")
     id("org.springframework.boot")
     id("org.graalvm.buildtools.native")
+    id("com.epages.restdocs-api-spec")
 }
 
 repositories {
@@ -62,4 +63,31 @@ pluginManager.withPlugin("org.jmailen.kotlinter") {
         }
     }
 
+}
+
+
+pluginManager.withPlugin("com.epages.restdocs-api-spec") {
+    openapi.format = "yaml"
+    afterEvaluate {
+        val openapiTask = tasks.getByName("openapi")
+        tasks.bootJar {
+            dependsOn(openapiTask)
+        }
+    }
+
+
+    tasks.build {
+        doLast {
+            val openapiPath = openapi.outputDirectory + "/" + openapi.outputFileNamePrefix + "." + openapi.format
+            val processResources = tasks.processResources.get()
+            if (processResources.inputs.files.map { it.path }.contains(openapiPath)) {
+                throw IllegalStateException("openapi Task 의 output 이 processGenResources 의 input 으로 들어갑니다. 들어가지 않는 것을 예상했습니다.")
+            }
+
+            val bootJarTask = tasks.bootJar.get()
+            if (bootJarTask.inputs.files.map { it.name }.contains(openapi.outputFileNamePrefix + "." + openapi.format)) {
+                throw IllegalStateException("openapi Task 의 output 이 bootJar 의 input 으로 들어갑니다. 들어가지 않는 것을 예상했습니다.")
+            }
+        }
+    }
 }

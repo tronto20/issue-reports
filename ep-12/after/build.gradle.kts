@@ -1,5 +1,3 @@
-import org.gradle.configurationcache.extensions.capitalized
-import org.jmailen.gradle.kotlinter.tasks.LintTask
 import org.springframework.boot.gradle.tasks.buildinfo.BuildInfo
 import org.springframework.boot.gradle.tasks.bundling.BootArchive
 import org.springframework.boot.gradle.tasks.run.BootRun
@@ -10,6 +8,7 @@ plugins {
     kotlin("jvm")
     id("org.springframework.boot")
     id("org.graalvm.buildtools.native")
+    id("com.epages.restdocs-api-spec")
 }
 
 repositories {
@@ -34,7 +33,6 @@ project.pluginManager.withPlugin("org.springframework.boot") {
      *  bootJar 에 genSourceSet 도 포함하도록 설정
      */
     tasks.withType<BootArchive>() {
-        dependsOn(genSourceSet.classesTaskName)
         classpath(genSourceSet.runtimeClasspath)
     }
 
@@ -65,6 +63,9 @@ project.pluginManager.withPlugin("org.springframework.boot") {
         }
     }
 
+    /***
+     *  잘 작동하는지 테스트
+     */
     tasks.build {
         doLast {
             if (tasks.compileKotlin.get().state.skipped && tasks.compileJava.get().state.skipped) {
@@ -139,3 +140,32 @@ pluginManager.withPlugin("org.jmailen.kotlinter") {
 
 }
 
+pluginManager.withPlugin("com.epages.restdocs-api-spec") {
+
+    openapi {
+        this.outputDirectory = genResourceDir.get().asFile.absolutePath
+        this.format = "yaml"
+    }
+    afterEvaluate {
+        val openapiTask = tasks.getByName("openapi")
+        tasks.getByName(genSourceSet.processResourcesTaskName) {
+            dependsOn(openapiTask)
+        }
+    }
+
+
+    tasks.build {
+        doLast {
+            val openapiPath = openapi.outputDirectory + "/" + openapi.outputFileNamePrefix + "." + openapi.format
+            val processGenResourcesTask = tasks.getByName(genSourceSet.processResourcesTaskName)
+            if (!processGenResourcesTask.inputs.files.map { it.path }.contains(openapiPath)) {
+                throw IllegalStateException("openapi Task 의 output 이 processGenResources 의 input 으로 들어가지 않습니다.")
+            }
+
+            val bootJarTask = tasks.bootJar.get()
+            if (!bootJarTask.inputs.files.toList().containsAll(processGenResourcesTask.outputs.files.toList())) {
+                throw IllegalStateException("processGenResources 의 output 이 bootJar 의 input 으로 들어가지 않습니다.")
+            }
+        }
+    }
+}
