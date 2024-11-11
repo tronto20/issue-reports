@@ -1,3 +1,5 @@
+import dev.tronto.issuereports.buildsrc.tasks.PathExec
+
 plugins {
     kotlin("jvm")
     kotlin("plugin.spring")
@@ -34,7 +36,8 @@ tasks.bootBuildImage {
     this.environment.set(mapOf("BP_NATIVE_IMAGE_BUILD_ARGUMENTS" to "-Ob"))
 }
 
-tasks.register("runTestImage", Exec::class.java) {
+
+tasks.register("runTestImage", PathExec::class.java) {
     dependsOn(tasks.bootBuildImage)
     this.group = "build"
     workingDir = project.projectDir
