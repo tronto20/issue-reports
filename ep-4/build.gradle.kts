@@ -31,6 +31,7 @@ dependencies {
         exclude(module = "mockito-core")
     }
 }
+
 val jvmVersion = properties["jdk.version"]?.toString() ?: "17"
 tasks.bootBuildImage {
     this.environment.set(mapOf("BP_NATIVE_IMAGE_BUILD_ARGUMENTS" to "-Ob", "BP_JVM_VERSION" to jvmVersion))

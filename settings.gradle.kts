@@ -30,6 +30,7 @@ include(":dependencies")
 include(
     ":ep-1",
     ":ep-2",
+    ":ep-4",
     ":ep-12",
     ":ep-12:before",
     ":ep-12:after",
